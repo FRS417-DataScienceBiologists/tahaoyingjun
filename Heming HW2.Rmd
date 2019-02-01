@@ -1,0 +1,39 @@
+---
+title: "Heming HW2"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+msleep
+
+##From which publication are these data taken from? Don't do an internet search; show the code that you would use to find out in R.
+
+
+##Provide some summary information about the data to get you started; feel free to use the functions that you find most helpful.
+summary(msleep)
+str(msleep)
+
+##Make a new data frame focused on body weight, but be sure to indicate the common name and genus of each mammal.
+msleep %>%
+  select(name, genus, bodywt) %>%
+  arrange(desc(bodywt))
+
+##We are interested in two groups; small and large mammals. Let's define small as less than or equal to 1kg body weight and large as greater than or equal to 200kg body weight. For our study, we are interested in body weight and sleep total Make two new dataframes (large and small) based on these parameters.
+
+##Let's try to figure out if large mammals sleep, on average, longer than small mammals. What is the average sleep duration for large mammals as we have defined them?
+
+
+##What is the average sleep duration for small mammals as we have defined them?
+
+##Which animals sleep at least 18 hours per day? Be sure to show the name, genus, order, and sleep total.
+
+
+```
+
