@@ -7,13 +7,12 @@ output:
 
 
 
-
 ```r
 library(tidyverse)
 ```
 
 ```
-## -- Attaching packages ------------------------------ tidyverse 1.2.1 --
+## -- Attaching packages -------- tidyverse 1.2.1 --
 ```
 
 ```
@@ -24,7 +23,7 @@ library(tidyverse)
 ```
 
 ```
-## -- Conflicts --------------------------------- tidyverse_conflicts() --
+## -- Conflicts ----------- tidyverse_conflicts() --
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()
 ```
@@ -50,12 +49,18 @@ msleep
 ## # ... with 73 more rows, and 3 more variables: awake <dbl>, brainwt <dbl>,
 ## #   bodywt <dbl>
 ```
+1. From which publication are these data taken from? Don't do an internet search; show the code that you would use to find out in R.
 
 ```r
-##From which publication are these data taken from? Don't do an internet search; show the code that you would use to find out in R.
+?msleep
+```
 
+```
+## starting httpd help server ... done
+```
+2. Provide some summary information about the data to get you started; feel free to use the functions that you find most helpful.
 
-##Provide some summary information about the data to get you started; feel free to use the functions that you find most helpful.
+```r
 summary(msleep)
 ```
 
@@ -87,37 +92,123 @@ summary(msleep)
 ```
 
 ```r
-##Make a new data frame focused on body weight, but be sure to indicate the common name and genus of each mammal.
-msleep %>%
-  select(name, genus, bodywt) %>%
-  arrange(desc(bodywt))
+str(msleep)
+```
+
+```
+## Classes 'tbl_df', 'tbl' and 'data.frame':	83 obs. of  11 variables:
+##  $ name        : chr  "Cheetah" "Owl monkey" "Mountain beaver" "Greater short-tailed shrew" ...
+##  $ genus       : chr  "Acinonyx" "Aotus" "Aplodontia" "Blarina" ...
+##  $ vore        : chr  "carni" "omni" "herbi" "omni" ...
+##  $ order       : chr  "Carnivora" "Primates" "Rodentia" "Soricomorpha" ...
+##  $ conservation: chr  "lc" NA "nt" "lc" ...
+##  $ sleep_total : num  12.1 17 14.4 14.9 4 14.4 8.7 7 10.1 3 ...
+##  $ sleep_rem   : num  NA 1.8 2.4 2.3 0.7 2.2 1.4 NA 2.9 NA ...
+##  $ sleep_cycle : num  NA NA NA 0.133 0.667 ...
+##  $ awake       : num  11.9 7 9.6 9.1 20 9.6 15.3 17 13.9 21 ...
+##  $ brainwt     : num  NA 0.0155 NA 0.00029 0.423 NA NA NA 0.07 0.0982 ...
+##  $ bodywt      : num  50 0.48 1.35 0.019 600 ...
+```
+3. Make a new data frame focused on body weight, but be sure to indicate the common name and genus of each mammal.
+
+```r
+select(msleep, name, genus, bodywt) 
 ```
 
 ```
 ## # A tibble: 83 x 3
-##    name                 genus         bodywt
-##    <chr>                <chr>          <dbl>
-##  1 African elephant     Loxodonta      6654 
-##  2 Asian elephant       Elephas        2547 
-##  3 Giraffe              Giraffa         900.
-##  4 Pilot whale          Globicephalus   800 
-##  5 Cow                  Bos             600 
-##  6 Horse                Equus           521 
-##  7 Brazilian tapir      Tapirus         208.
-##  8 Donkey               Equus           187 
-##  9 Bottle-nosed dolphin Tursiops        173.
-## 10 Tiger                Panthera        163.
+##    name                       genus        bodywt
+##    <chr>                      <chr>         <dbl>
+##  1 Cheetah                    Acinonyx     50    
+##  2 Owl monkey                 Aotus         0.48 
+##  3 Mountain beaver            Aplodontia    1.35 
+##  4 Greater short-tailed shrew Blarina       0.019
+##  5 Cow                        Bos         600    
+##  6 Three-toed sloth           Bradypus      3.85 
+##  7 Northern fur seal          Callorhinus  20.5  
+##  8 Vesper mouse               Calomys       0.045
+##  9 Dog                        Canis        14    
+## 10 Roe deer                   Capreolus    14.8  
 ## # ... with 73 more rows
+```
+4. We are interested in two groups; small and large mammals. Let's define small as less than or equal to 1kg body weight and large as greater than or equal to 200kg body weight. For our study, we are interested in body weight and sleep total Make two new dataframes (large and small) based on these parameters.
+
+```r
+small <- msleep%>% 
+  select(name, bodywt, sleep_total)%>% 
+  filter(bodywt <= 1)
+  small
+```
+
+```
+## # A tibble: 36 x 3
+##    name                       bodywt sleep_total
+##    <chr>                       <dbl>       <dbl>
+##  1 Owl monkey                  0.48         17  
+##  2 Greater short-tailed shrew  0.019        14.9
+##  3 Vesper mouse                0.045         7  
+##  4 Guinea pig                  0.728         9.4
+##  5 Chinchilla                  0.42         12.5
+##  6 Star-nosed mole             0.06         10.3
+##  7 African giant pouched rat   1             8.3
+##  8 Lesser short-tailed shrew   0.005         9.1
+##  9 Big brown bat               0.023        19.7
+## 10 European hedgehog           0.77         10.1
+## # ... with 26 more rows
 ```
 
 ```r
-##We are interested in two groups; small and large mammals. Let's define small as less than or equal to 1kg body weight and large as greater than or equal to 200kg body weight. For our study, we are interested in body weight and sleep total Make two new dataframes (large and small) based on these parameters.
-
-##Let's try to figure out if large mammals sleep, on average, longer than small mammals. What is the average sleep duration for large mammals as we have defined them?
-
-
-##What is the average sleep duration for small mammals as we have defined them?
-
-##Which animals sleep at least 18 hours per day? Be sure to show the name, genus, order, and sleep total.
+large <- msleep%>% 
+  select(name, bodywt, sleep_total)%>% 
+  filter(bodywt >= 200)
+  large
 ```
 
+```
+## # A tibble: 7 x 3
+##   name             bodywt sleep_total
+##   <chr>             <dbl>       <dbl>
+## 1 Cow                600          4  
+## 2 Asian elephant    2547          3.9
+## 3 Horse              521          2.9
+## 4 Giraffe            900.         1.9
+## 5 Pilot whale        800          2.7
+## 6 African elephant  6654          3.3
+## 7 Brazilian tapir    208.         4.4
+```
+5. Let's try to figure out if large mammals sleep, on average, longer than small mammals. What is the average sleep duration for large mammals as we have defined them?
+
+```r
+mean(large$sleep_total)
+```
+
+```
+## [1] 3.3
+```
+6. What is the average sleep duration for small mammals as we have defined them?
+
+```r
+mean(small$sleep_total)
+```
+
+```
+## [1] 12.65833
+```
+7. Which animals sleep at least 18 hours per day? Be sure to show the name, genus, order, and sleep total.
+
+```r
+msleep %>% 
+  select(name, genus, order, sleep_total)%>% 
+  filter(sleep_total >= 18)
+```
+
+```
+## # A tibble: 5 x 4
+##   name                   genus      order           sleep_total
+##   <chr>                  <chr>      <chr>                 <dbl>
+## 1 North American Opossum Didelphis  Didelphimorphia        18  
+## 2 Big brown bat          Eptesicus  Chiroptera             19.7
+## 3 Thick-tailed opposum   Lutreolina Didelphimorphia        19.4
+## 4 Little brown bat       Myotis     Chiroptera             19.9
+## 5 Giant armadillo        Priodontes Cingulata              18.1
+```
