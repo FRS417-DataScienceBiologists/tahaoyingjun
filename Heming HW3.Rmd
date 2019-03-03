@@ -34,7 +34,7 @@ spgroupname = Species..ISSCAAP.group._1
 region = Fishing.area..FAO.major.fishing.area.
 unit = Measure..Measure.
 ```{r}
-fisheries %>% 
+fisheries <- fisheries %>% 
   dplyr::rename(
     country = Country..Country.,
     commname = Species..ASFIS.species.,
@@ -53,5 +53,48 @@ No, we can group all the years by one colume.
 ```{r}
 fisheries_tidy <- fisheries %>% 
 gather(num_range('X',1950:2012), key='Year', value='Catch')
+fisheries_tidy
+```
+6. Use glimpse() to look at the categories of the variables. Pay particular attention to  year and catch. What do you notice?
+```{r}
+glimpse(fisheries_tidy)
+```
+A lot of Data are missing in "catch"
+
+7. From question 6 you should see that there are a lot of entries that are missing. In R, these are referred to as NA's but they can be coded in different ways by the scientists in a given study. In order to make the data tidy, we need to deal with them. As a preview to our next lab, run the following code by removing the #. It removes the 'X' from the years and changes the catch column from a character into a numeric. This forces the blank entries to become NAs. The error "NAs introduced by coercion" indicates their replacement.
+```{r}
+fisheries_tidy <- 
+  fisheries_tidy %>% 
+  mutate(
+    Year= as.numeric(str_replace(Year, 'X', '')), #remove the X from year
+    Catch= as.numeric(str_replace(Catch, c(' F','...','-'), replacement = '')) #replace character strings with NA
+    )
+fisheries_tidy
+```
+
+8. Are the data tidy? Why?
+Yes. Each cell has a value, and each colume has a category.
+
+9. You are a fisheries scientist studying cephalopod catch during 2008-2012. Identify the top five consumers (by country) of cephalopods (don't worry about species for now). Restrict the data frame only to our variables of interest.
+```{r}
+fisheries_tidy %>% 
+  select(country, spgroupname, Year, Catch) %>% 
+  filter(
+    Year>=2008 & Year<=2012,
+    spgroupname=="Squids, cuttlefishes, octopuses") %>% 
+  group_by(country) %>% 
+  summarize(sumcatch=sum(Catch, na.rm=TRUE)) %>%
+  arrange(desc(sumcatch))
+```
+
+10. Let's be more specific. Who consumes the most Common cuttlefish? Store this as a new object cuttle.
+```{r}
+cuttle <- 
+  fisheries_tidy %>% 
+  select(country, commname, sciname, Year, Catch) %>% 
+  filter(Year==2012,
+         commname=="Common cuttlefish") %>%
+  arrange(desc(Catch))
+cuttle
 ```
 
