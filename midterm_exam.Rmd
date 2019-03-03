@@ -23,69 +23,75 @@ library(tidyverse)
 
 2. For these questions, we will use data about California colleges. Load the `ca_college_data.csv` as a new object called `colleges`.
 ```{r}
-college<-
-  readr::read_csv("data/ca_college_data.csv")
+colleges<-
+  readr::read_csv("ca_college_data.csv")
 ```
 
 
 3. Use your preferred function to have a look at the data and get an idea of its structure.
 ```{r}
-summary(college)
+glimpse(colleges)
+```
+
+```{r}
+summary(colleges)
+```
+```{r}
+colleges
 ```
 
 
 4. What are the column names?
 ```{r}
-colnames(college)
+colnames(colleges)
 ```
 
 
 5. Are there any NA's in the data? If so, how many are present and in which variables?
-INSTNM              CITY              STABBR              ZIP               ADM_RATE     
- Length:341         Length:341         Length:341         Length:341         Min.   :0.0807  
- Class :character   Class :character   Class :character   Class :character   1st Qu.:0.4581  
- Mode  :character   Mode  :character   Mode  :character   Mode  :character   Median :0.6370  
-                                                                             Mean   :0.5901  
-                                                                             3rd Qu.:0.7461  
-                                                                             Max.   :1.0000  
-                                                                             NA's   :240     
-    SAT_AVG         PCIP26           COSTT4_A     C150_4_POOLED     PFTFTUG1_EF    
- Min.   : 870   Min.   :0.00000   Min.   : 7956   Min.   :0.0625   Min.   :0.0064  
- 1st Qu.: 985   1st Qu.:0.00000   1st Qu.:12578   1st Qu.:0.4265   1st Qu.:0.3212  
- Median :1078   Median :0.00000   Median :16591   Median :0.5845   Median :0.5016  
- Mean   :1112   Mean   :0.01981   Mean   :26685   Mean   :0.5705   Mean   :0.5577  
- 3rd Qu.:1237   3rd Qu.:0.02458   3rd Qu.:39289   3rd Qu.:0.7162   3rd Qu.:0.8117  
- Max.   :1555   Max.   :0.21650   Max.   :69355   Max.   :0.9569   Max.   :1.0000  
- NA's   :276    NA's   :35        NA's   :124     NA's   :221      NA's   :53      
+```{r}
+colleges %>% 
+  purrr::map_df(~ sum(is.na(.))) %>% 
+  tidyr::gather(key="variables", value="num_nas") %>% 
+  arrange(desc(num_nas))
+```
 
 
 6. Which cities in California have the highest number of colleges?
 ```{r}
-college %>% 
-  ggplot(aes(x=CITY))+
-  geom_bar()+
-   theme(axis.text.x = element_text(angle=90, hjust=1))
+colleges %>% 
+  count(CITY) %>% 
+  arrange(desc(n))
 ```
 
 
 7. The column `COSTT4_A` is the annual cost of each institution. Which city has the highest cost?
 
 ```{r}
-ggplot(data=college, mapping=aes(x=COSTT4_A, y=CITY))+
- geom_boxplot()
+colleges %>% 
+  group_by(CITY) %>% 
+  summarise(sum_cost_yr=sum(COSTT4_A, na.rm = TRUE)) %>% 
+  arrange(desc(sum_cost_yr))
 ```
-
 
 8. The column `ADM_RATE` is the admissions rate by college and `C150_4_POOLED` is the four-year completion rate. Use a scatterplot to show the relationship between these two variables. What does this mean?
 ```{r}
-ggplot(data=college, mapping=aes(x=ADM_RATE, y=C150_4_POOLED))+
- geom_point()
+ggplot(data=colleges, mapping=aes(x=ADM_RATE, y=C150_4_POOLED))+
+ geom_point()+
+  geom_smooth(method=lm, se=TRUE)
 ```
+#or
+```{r}
+colleges %>% 
+  ggplot(aes(x=ADM_RATE, y=C150_4_POOLED))+
+  geom_point()+
+  geom_smooth(method=lm, se=TRUE)
+```
+
 
 9. The column titled `INSTNM` is the institution name. We are only interested in the University of California colleges. Run the code below and look at the output. Are all of the columns tidy? Why or why not?
 ```{r}
 univ_calif<-
-  college %>%
+  colleges %>%
   filter_all(any_vars(str_detect(.,pattern = "University of California")))
 univ_calif
 ```
@@ -93,12 +99,30 @@ They are tidy, because each colume has a category.
 
 
 10. Use `separate()` to separate institution name into two new columns "UNIV" and "CAMPUS".
+```{r}
+univ_calif<-univ_calif %>% 
+  separate(INSTNM, into= c("UNIV", "CAMPUS"), sep = "-")
+univ_calif
+```
+
 
 
 11. As a final step, remove `Hastings College of Law` and `UC San Francisco` and store the final data frame as a new object `univ_calif_final`.
 
+```{r}
+univ_calif_final <- 
+  univ_calif %>% 
+  filter(CAMPUS !="Hastings College of Law",
+         CAMPUS !="San Francisco")
+univ_calif_final
+```
+
 
 12. The column `ADM_RATE` is the admissions rate by campus. Which UC has the lowest and highest admissions rates? Please use a barplot.
-
+```{r}
+univ_calif_final %>% 
+  ggplot(aes(x=CAMPUS, y=ADM_RATE))+
+  geom_bar(stat="identity")
+```
 
 ## Knit Your Output and Post to [GitHub](https://github.com/FRS417-DataScienceBiologists)
