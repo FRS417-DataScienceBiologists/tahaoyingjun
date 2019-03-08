@@ -1,0 +1,39 @@
+---
+title: "Heming 6"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+```{r}
+homerange<-
+  readr::read_csv("Tamburelloetal_HomeRangeDatabase.csv")
+```
+```{r}
+homerange %>%
+  ggplot(aes(x=trophic.guild, y=mean.mass.g))+
+  geom_boxplot()+
+  labs
+
+```
+```{r}
+homerange %>% 
+  ggplot(aes(x=locomotion))+
+  geom_bar()+
+  labs(title = "Locomotion Type",
+       x = "Locomotion",
+       y = "#individuals")
+```
+```{r}
+homerange %>% 
+  ggplot(aes(x=class, y=log10.mass, group=taxon, fill=taxon))+
+  geom_boxplot()
+```
+
+
+

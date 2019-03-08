@@ -1,0 +1,85 @@
+---
+title: "Heming 5"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+library(skimr)
+```
+```{r}
+?iris
+names(iris)
+```
+```{r}
+ggplot(data=iris, mapping=aes(x=Species, y=Petal.Length))+
+ geom_boxplot()
+```
+```{r}
+ggplot(data=iris, mapping=aes(x=Sepal.Length, y=Sepal.Width))+
+  geom_jitter()
+```
+```{r}
+homerange <- readr::read_csv("Tamburelloetal_HomeRangeDatabase.csv")
+```
+```{r}
+ggplot(data=homerange, mapping=aes(x=log10.mass, y=log10.hra)) +
+  geom_point()
+```
+```{r}
+ggplot(data=homerange, mapping=aes(x=log10.mass, y=log10.hra)) +
+  geom_jitter()
+```
+```{r}
+ggplot(data=homerange, mapping=aes(x=log10.mass, y=log10.hra)) +
+  geom_jitter()+
+  geom_smooth(method=lm, se=FALSE) 
+```
+```{r}
+homerange %>% 
+  ggplot(aes(x=trophic.guild))+
+  geom_bar(stat="count") # I am identifying stat="count" but this isn't necessary since it is default
+```
+```{r}
+carni_mammals <- 
+  homerange %>% 
+  filter(taxon=="mammals", 
+         trophic.guild=="carnivore") %>% 
+  group_by(family) %>% 
+  summarize(count=n(),
+            mean_body_wt=mean(log10.mass)) %>% 
+  arrange(desc(mean_body_wt))
+carni_mammals
+```
+```{r}
+carni_mammals%>% 
+  ggplot(aes(x=family, y=mean_body_wt))+
+  geom_bar(stat="identity")+
+  theme(axis.text.x = element_text(angle = 60, hjust=1))
+```
+```{r}
+carni_mammals%>% 
+  ggplot(aes(x=reorder(family, -mean_body_wt), y=mean_body_wt))+
+  geom_bar(stat="identity")+
+  theme(axis.text.x = element_text(angle = 60, hjust=1))
+```
+1. Are there more herbivores or carnivores in mammals? MAke a bar plot that shows their relative proportions.
+```{r}
+homerange %>% 
+  ggplot(aes(x=trophic.guild))+
+  geom_bar(stat="count")
+```
+
+
+
+2. Is there a positive or negative relationship between mass and homerange? How does this compare between herbivores and carnivores? Make two plots that illustrate these eamples below.
+
+```{r}
+mamals %>% 
+  top_n(5, log10.mass) %>% 
+  ggplot(aes(x=common.name, y=log10.mass))+
+```
+

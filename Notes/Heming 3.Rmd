@@ -1,0 +1,88 @@
+---
+title: "Heming3"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Load the library
+```{r}
+library(tidyverse)
+```
+#Tidyr
+The following data are results from a drug trial that shows the effect of four different treatments on six patients. The values represent resting heart rate.
+```{r}
+non_tidy1 <- data.frame(
+  patient= c("Margaret", "Frank", "Hawkeye", "Trapper", "Radar", "Henry"),
+  a= c(72, 84, 64, 60, 74, 88),
+  b= c(74, 84, 66, 58, 72, 87),
+  c= c(80, 88, 68, 64, 78, 88),
+  d= c(68, 76, 64, 58, 70, 72)
+)
+non_tidy1
+```
+let's plot these data. 
+```{r}
+plot(non_tidy1)
+```
+#gather()
+gather() is the function used most when dealing with non-tidy data. It allows us to transform wide data into long data.
+```{r}
+non_tidy1
+```
+```{r}
+tidy1 <- non_tidy1 %>% 
+  gather(a, b, c, d, key="drug", value="heartrate")
+  tidy1
+```
+And, as a final check let's try the plot command again. I do need to tell R the x and y axes.
+```{r}
+plot(tidy1$patient, tidy1$heartrate)
+```
+#seperate()
+No, there is more than one value per cell in the patient column and the columns a, b, c, d once again represent values.
+```{r}
+non_tidy2 <- data.frame(
+  patient= c("Margaret_f", "Frank_m", "Hawkeye_m", "Trapper_m", "Radar_m", "Henry_m"),
+  a= c(72, 84, 64, 60, 74, 88),
+  b= c(74, 84, 66, 58, 72, 87),
+  c= c(80, 88, 68, 64, 78, 88),
+  d= c(68, 76, 64, 58, 70, 72)
+)
+non_tidy2
+```
+We need to start by separating the patient names from their sexes. separate() needs to know which column you want to split, the names of the new columns, and what to look for in terms of breaks in the data.\
+```{r}
+non_tidy2 %>% 
+  separate(patient, into= c("patient", "sex"), sep = "_")
+```
+This is great; we have separated sex from patient. Are the data tidy? Not yet. We still need to use gather().
+```{r}
+tidy2 <- non_tidy2 %>% 
+  separate(patient, into= c("patient", "sex"), sep = "_") %>% 
+  gather(a, b, c, d, key="drug", value="heartrate")
+tidy2
+```
+#unite()
+unite() is the opposite of separate(). It's syntax is relatively straightforward. You only need to identify the key and the value.
+```{r}
+tidy2 %>% 
+  spread(key="drug", value="heartrate") %>% 
+  unite(patient_sex, patient, sex, sep="_")
+```
+#rename()
+The rename function is actually part of dplyr, but I put it here because I think of it as part of transforming untidy data.
+```{r}
+tidy2
+```
+They can be renamed, just remember to replace or build a new object to keep things clean. (syntax is new name = old name)
+```{r}
+tidy2 %>% 
+  dplyr::rename(MASH_character = patient,
+                Sex = sex, 
+                Drug = drug,
+                Heartrate_bpm = heartrate)
+  
+```
+
