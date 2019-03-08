@@ -143,12 +143,144 @@ msleep %>%
 ##        <int>
 ## 1          0
 ```
+No, because the number is zero.
+
 3. Are there any missing data (NA's) represented by different values? How much and where? In which variables do we have the most missing data? Can you think of a reason why so much data are missing in this variable?
+
+Yes. They are represented by -999 in the AFR, gestation, litter_size, litter_yr, mass, mass_life, newborn, wean_mass, weaning, and p75 colume. Maybe the scientist didn't get these data.
+
 
 4. Compared to the msleep data, we have better representation among taxa. Produce a summary that shows the number of observations by taxonomic order.
 
+```r
+life_history %>% 
+  select(species, order)
+```
+
+```
+## # A tibble: 1,440 x 2
+##    species       order       
+##    <chr>         <chr>       
+##  1 americana     Artiodactyla
+##  2 nasomaculatus Artiodactyla
+##  3 melampus      Artiodactyla
+##  4 buselaphus    Artiodactyla
+##  5 clarkei       Artiodactyla
+##  6 lervia        Artiodactyla
+##  7 marsupialis   Artiodactyla
+##  8 cervicapra    Artiodactyla
+##  9 bison         Artiodactyla
+## 10 bonasus       Artiodactyla
+## # ... with 1,430 more rows
+```
+
+```r
+life_history %>% 
+  group_by(order) %>% 
+  summarize(n_total=n())
+```
+
+```
+## # A tibble: 17 x 2
+##    order          n_total
+##    <chr>            <int>
+##  1 Artiodactyla       161
+##  2 Carnivora          197
+##  3 Cetacea             55
+##  4 Dermoptera           2
+##  5 Hyracoidea           4
+##  6 Insectivora         91
+##  7 Lagomorpha          42
+##  8 Macroscelidea       10
+##  9 Perissodactyla      15
+## 10 Pholidota            7
+## 11 Primates           156
+## 12 Proboscidea          2
+## 13 Rodentia           665
+## 14 Scandentia           7
+## 15 Sirenia              5
+## 16 Tubulidentata        1
+## 17 Xenarthra           20
+```
+
+
+
 5. Mammals have a range of life histories, including lifespan. Produce a summary of lifespan in years by order. Be sure to include the minimum, maximum, mean, standard deviation, and total n.
 
+```r
+life_history <- 
+  life_history %>% 
+  na_if(-999.0)
+```
+
+
+```r
+life_history %>%
+  mutate(lifespan=max_life) %>% 
+  group_by(order) %>%
+  summarize(min=min(lifespan, na.rm=TRUE),
+            max=max(lifespan, na.rm=TRUE),
+            mean=mean(lifespan, na.rm=TRUE),
+            sd=sd(lifespan, na.rm=TRUE),
+            total=n())
+```
+
+```
+## # A tibble: 17 x 6
+##    order            min   max  mean    sd total
+##    <chr>          <dbl> <dbl> <dbl> <dbl> <int>
+##  1 Artiodactyla      81   732 248.   92.4   161
+##  2 Carnivora         60   672 253.  113.    197
+##  3 Cetacea          156  1368 586.  332.     55
+##  4 Dermoptera       210   210 210   NaN       2
+##  5 Hyracoidea       132   147 140.   10.6     4
+##  6 Insectivora       14   156  46.2  34.8    91
+##  7 Lagomorpha        72   216 108.   46.2    42
+##  8 Macroscelidea     36   105  68.2  28.7    10
+##  9 Perissodactyla   252   600 426.  122.     15
+## 10 Pholidota        240   240 240   NaN       7
+## 11 Primates         106   726 309.  132.    156
+## 12 Proboscidea      840   960 900    84.9     2
+## 13 Rodentia          12   420  83.8  63.6   665
+## 14 Scandentia        32   149 106.   64.6     7
+## 15 Sirenia          150   876 518   363.      5
+## 16 Tubulidentata    288   288 288   NaN       1
+## 17 Xenarthra        108   480 255.  119.     20
+```
+
 6. Let's look closely at gestation and newborns. Summarize the mean gestation, newborn mass, and weaning mass by order. Add a new column that shows mean gestation in years and sort in descending order. Which group has the longest mean gestation? What is the common name for these mammals?
+
+```r
+life_history %>% 
+  group_by(order) %>% 
+  summarise(mean_gestation=mean(gestation, na.rm = TRUE),
+            mean_newborn=mean(newborn, na.rm = TRUE),
+            mean_weaning=mean(wean_mass)) %>% 
+  arrange(desc(mean_gestation))
+```
+
+```
+## # A tibble: 17 x 4
+##    order          mean_gestation mean_newborn mean_weaning
+##    <chr>                   <dbl>        <dbl>        <dbl>
+##  1 Proboscidea             21.3      99523.             NA
+##  2 Perissodactyla          13.0      27015.             NA
+##  3 Cetacea                 11.8     343077.             NA
+##  4 Sirenia                 10.8      22878.             NA
+##  5 Hyracoidea               7.4        231.             NA
+##  6 Artiodactyla             7.26      7082.             NA
+##  7 Tubulidentata            7.08      1734            6250
+##  8 Primates                 5.47       287.             NA
+##  9 Xenarthra                4.95       314.             NA
+## 10 Carnivora                3.69      3657.             NA
+## 11 Pholidota                3.63       276.             NA
+## 12 Dermoptera               2.75        35.9            NA
+## 13 Macroscelidea            1.91        24.5            NA
+## 14 Scandentia               1.63        12.8            NA
+## 15 Rodentia                 1.31        35.5            NA
+## 16 Lagomorpha               1.18        57.0            NA
+## 17 Insectivora              1.15         6.06           NA
+```
+Proboscidea has the longest mean gestation.
 
 
